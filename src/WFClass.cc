@@ -9,7 +9,7 @@
 
 //**********Constructors******************************************************************
 WFClass::WFClass(int polarity, float tUnit, DigiChannelCalibration* calibration):
-    uncalibSamples_(), calibSamples_(), samples_(uncalibSamples_),
+    uncalibSamples_(), calibSamples_(), samples_(uncalibSamples_), calibrated_(false),
     tUnit_(tUnit), polarity_(polarity), trigRef_(0), sWinMin_(-1), sWinMax_(-1), 
     bWinMin_(-1), bWinMax_(-1),  maxSample_(-1), fitAmpMax_(-1), fitTimeMax_(-1),
     fitChi2Max_(-1), baseline_(-1), bRMS_(-1), cfSample_(-1), cfFrac_(-1), cfTime_(-1),
@@ -335,10 +335,10 @@ float WFClass::GetModIntegral(int min, int max)
             continue;
         if(iSample >= samples_.size())
             break;
-        if(samples_.at(iSample) < 0)
-            integral -= samples_.at(iSample);
-        else
-            integral += samples_.at(iSample);
+        // if(samples_.at(iSample) < 0)
+        //     integral -= samples_.at(iSample);
+        // else
+	integral += samples_.at(iSample);
     }
     return integral;
 }
@@ -434,13 +434,20 @@ void WFClass::Reset()
     uncalibSamples_.clear();
     calibSamples_.clear();
     times_.clear();
-
+    
     samples_ = uncalibSamples_;
+    calibrated_ = false;
 } 
 
 //----------Apply channel Amp and Time intercalibration-----------------------------------
 bool WFClass::ApplyCalibration()
 {
+    if(calibrated_)
+    {
+        std::cout << "[WFClass]::WARNING::Calibration already appplied" << std::endl;
+        return false;
+    }
+
     if(!calibration_)
     {
         std::cout << "[WFClass]::ERROR::No calibration available" << std::endl;
@@ -457,13 +464,13 @@ bool WFClass::ApplyCalibration()
         times_.at(iSample) = iSample * tUnit_ - cc.deltaT; // time calibration
         calibSamples_.at(iSample) =
             polarity_*(us +                      // uncalib sample
-                       cc.deltaV     +           // constant DeltaV
-                       cc.slopeV     * us +      // linear term
-                       cc.quadraticV * us * us); // quadratic term
+		      cc.deltaV     +           // constant DeltaV
+		      cc.slopeV     * us +      // linear term
+		      cc.quadraticV * us * us); // quadratic term
     }
 
     samples_ = calibSamples_;
-    
+    calibrated_ = true;
     return true;
 }
 
@@ -475,6 +482,18 @@ void WFClass::AddSample(float sample)
     uncalibSamples_.push_back(polarity_*sample); 
     times_.push_back( (samples_.size()-1.)*tUnit_ );
     samples_ = uncalibSamples_;
+};
+
+
+//---------Add waveform sample to the list of calibrated samples------------------------
+//---sample is inserted at the end of alibSamples_
+//---the times vector is filled with the calibrated time (in ns)
+void WFClass::AddCalibSample(float sample, float time)
+{
+    calibSamples_.push_back(polarity_*sample); 
+    times_.push_back( time );
+    samples_ = calibSamples_;
+    calibrated_ = true;
 };
 
 //---------estimate the baseline in a given range and then subtract it from the signal----

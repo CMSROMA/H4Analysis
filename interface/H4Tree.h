@@ -76,6 +76,8 @@ typedef std::unordered_map<const bgc_key_t, int, key_hash, key_equal> bgc_map_t;
     DATA(unsigned int, digiGroup, nDigiSamples)             \
     DATA(unsigned int, digiChannel, nDigiSamples)           \
     DATA(unsigned int, digiStartIndexCell, nDigiSamples)    \
+    DATA(float, digiSampleCalibValue, nDigiSamples)    \
+    DATA(float, digiSampleTime, nDigiSamples)    \
     DATA(uint16_t,     digiSampleValue, nDigiSamples)
 
 #include "DynamicTTree/interface/DynamicTTreeInterface.h"

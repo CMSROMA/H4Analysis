@@ -144,6 +144,7 @@ public:
     void                           Reset();
     bool                           ApplyCalibration();
     void                           AddSample(float sample);
+    void                           AddCalibSample(float sample,float time);
     WFBaseline                     SubtractBaseline(int min=-1, int max=-1);
     virtual WFFitResults           TemplateFit(float offset=0., int lW=0, int hW=0);
     double                         AnalyticFit(TF1* f, int lW, int hW);
@@ -171,6 +172,7 @@ protected:
 
     DigiChannelCalibration* calibration_;
 
+    bool           calibrated_;
     int            startIndexCell_;
     float          tUnit_;
     int            polarity_;

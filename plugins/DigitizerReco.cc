@@ -102,12 +102,17 @@ bool DigitizerReco::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugin
             //---H4DAQ bug: sometimes ADC value is out of bound.
             //---skip everything if one channel is bad
             if(event.digiSampleValue[iSample] > 1e6)
-            {
-                evtStatus = false;
+	    {
+	        evtStatus = false;
                 WFs_[channel]->AddSample(4095);
             }
             else
-                WFs_[channel]->AddSample(event.digiSampleValue[iSample]);
+	    {
+	      if ( unsigned int digiBd = opts.GetOpt<unsigned int>(channel+".isCalibrated") )
+		WFs_[channel]->AddCalibSample(event.digiSampleCalibValue[iSample],event.digiSampleTime[iSample]);
+	      else
+		WFs_[channel]->AddSample(event.digiSampleValue[iSample]);
+	    }
         }
         if(opts.OptExist(channel+".useTrigRef") && opts.GetOpt<bool>(channel+".useTrigRef"))
             WFs_[channel]->SetTrigRef(trigRef);

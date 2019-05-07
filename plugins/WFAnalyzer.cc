@@ -157,8 +157,10 @@ bool WFAnalyzer::ProcessEvent(H4Tree& event, map<string, PluginBase*>& plugins, 
         digiTree_.amp_max[outCh] = interpolAmpMax.ampl;
         digiTree_.time_max[outCh] = interpolAmpMax.time;
         digiTree_.chi2_max[outCh] = interpolAmpMax.chi2;
-        digiTree_.charge_tot[outCh] = WFs_[channel]->GetModIntegral(opts.GetOpt<int>(channel+".baselineInt", 1), 
-                                                                    WFs_[channel]->GetNSample());
+        // digiTree_.charge_tot[outCh] = WFs_[channel]->GetModIntegral(opts.GetOpt<int>(channel+".baselineInt", 1), 
+        //                                                             WFs_[channel]->GetNSample());
+        digiTree_.charge_tot[outCh] = WFs_[channel]->GetModIntegral(opts.GetOpt<int>(channel+".chargeInt", 0), 
+                                                                    opts.GetOpt<int>(channel+".chargeInt", 1));
         digiTree_.charge_sig[outCh] = WFs_[channel]->GetSignalIntegral(opts.GetOpt<int>(channel+".signalInt", 0), 
                                                                        opts.GetOpt<int>(channel+".signalInt", 1));
         //---compute time with all the requested time reconstruction method

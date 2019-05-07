@@ -38,8 +38,11 @@ bool DataLoader::ReadInputFiles()
     while(waveList >> file && (opts_.GetOpt<int>("h4reco.maxFiles")<0 || fileList_.size()<opts_.GetOpt<int>("h4reco.maxFiles")) )
     {
         //---skip files before specified spill
-        auto currentSpill = std::stoi(file.substr(0, file.size()-4));
-        if(firstSpill == -1 || currentSpill == firstSpill)
+      int currentSpill=1;
+      if (firstSpill != -1)
+        currentSpill = std::stoi(file.substr(0, file.size()-4));
+
+      if(firstSpill == -1 || currentSpill == firstSpill)
         {
             if(path.find("/eos/cms") != string::npos)
             {
